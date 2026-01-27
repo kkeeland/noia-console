@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* Base styles */
+:root {
+  --noia-bg: #0a0a0f;
+  --noia-surface: #12121a;
+  --noia-border: #1e1e2e;
+  --noia-accent: #8b5cf6;
+  --noia-accent-muted: #6d28d9;
+  --noia-text: #e4e4e7;
+  --noia-text-muted: #71717a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--noia-bg);
+  color: var(--noia-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--noia-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--noia-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--noia-accent-muted);
+}
+
+/* Selection */
+::selection {
+  background: var(--noia-accent);
+  color: white;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--noia-accent);
+  outline-offset: 2px;
+}
+
+/* Glow effect for accent elements */
+.noia-glow {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Subtle gradient backgrounds */
+.noia-gradient {
+  background: linear-gradient(135deg, var(--noia-surface) 0%, var(--noia-bg) 100%);
+}
+
+/* Glass effect */
+.noia-glass {
+  background: rgba(18, 18, 26, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--noia-border);
+}
