@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Brain, Search, Calendar, Users, BarChart3, FolderTree } from 'lucide-react'
+import { Brain, Search, Calendar, Users, BarChart3, FolderTree, Share2 } from 'lucide-react'
 import MemorySearch from './MemorySearch'
 import MemoryTimeline from './MemoryTimeline'
 import MemoryEntities from './MemoryEntities'
 import MemoryStats from './MemoryStats'
 import MemoryFileBrowser from './MemoryFileBrowser'
+import KnowledgeGraph from './KnowledgeGraph'
 
-type Tab = 'search' | 'timeline' | 'entities' | 'stats' | 'files'
+type Tab = 'search' | 'timeline' | 'entities' | 'graph' | 'stats' | 'files'
 
 const TABS: Array<{ key: Tab; label: string; icon: React.ElementType }> = [
   { key: 'search', label: 'Search', icon: Search },
   { key: 'timeline', label: 'Timeline', icon: Calendar },
   { key: 'entities', label: 'Entities', icon: Users },
+  { key: 'graph', label: 'Graph', icon: Share2 },
   { key: 'files', label: 'Files', icon: FolderTree },
   { key: 'stats', label: 'Stats', icon: BarChart3 },
 ]
@@ -80,6 +82,7 @@ export default function Memory() {
             {activeTab === 'search' && <MemorySearch />}
             {activeTab === 'timeline' && <MemoryTimeline />}
             {activeTab === 'entities' && <MemoryEntities />}
+            {activeTab === 'graph' && <KnowledgeGraph />}
             {activeTab === 'stats' && <MemoryStats />}
             {activeTab === 'files' && <MemoryFileBrowser />}
           </motion.div>
