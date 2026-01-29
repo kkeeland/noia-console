@@ -1,5 +1,4 @@
 // CRM data layer — unified contact model from contacts.json, Gmail, iMessage, WhatsApp
-import { getGatewayUrl, getGatewayToken } from './config'
 
 // ── Types ──────────────────────────────────────────────
 
@@ -25,39 +24,7 @@ export interface Contact {
 
 export type HeatLevel = 'hot' | 'warm' | 'cold' | 'frozen'
 
-// ── Exec helper ────────────────────────────────────────
-
-async function execCommand(command: string): Promise<string> {
-  const gatewayUrl = getGatewayUrl()
-  const gatewayToken = getGatewayToken()
-
-  const response = await fetch(`${gatewayUrl}/tools/invoke`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${gatewayToken}`,
-    },
-    body: JSON.stringify({ tool: 'exec', args: { command } }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  if (!data.ok) {
-    throw new Error(data.error?.message || 'exec failed')
-  }
-
-  const text = data.result?.content
-    ?.filter((c: { type: string }) => c.type === 'text')
-    ?.map((c: { text: string }) => c.text)
-    ?.join('\n') || ''
-
-  return text.trim()
-}
-
-// ── Data loaders ───────────────────────────────────────
+// ── Data loaders (local dev server endpoints) ──────────
 
 interface ContactsJsonEntry {
   [phone: string]: string
@@ -65,9 +32,9 @@ interface ContactsJsonEntry {
 
 export async function loadContactsJson(): Promise<Map<string, string>> {
   try {
-    const raw = await execCommand('cat ~/clawd/contacts.json 2>/dev/null')
-    if (!raw) return new Map()
-    const parsed: ContactsJsonEntry = JSON.parse(raw)
+    const res = await fetch('/data/contacts')
+    if (!res.ok) return new Map()
+    const parsed: ContactsJsonEntry = await res.json()
     return new Map(Object.entries(parsed))
   } catch {
     return new Map()
@@ -76,16 +43,20 @@ export async function loadContactsJson(): Promise<Map<string, string>> {
 
 export async function loadCrmData(): Promise<Record<string, { tags: string[]; notes: string }>> {
   try {
-    const raw = await execCommand('cat ~/clawd/.noia/crm.json 2>/dev/null || echo "{}"')
-    return JSON.parse(raw)
+    const res = await fetch('/data/crm')
+    if (!res.ok) return {}
+    return await res.json()
   } catch {
     return {}
   }
 }
 
 export async function saveCrmData(data: Record<string, { tags: string[]; notes: string }>): Promise<void> {
-  const json = JSON.stringify(data, null, 2)
-  await execCommand(`mkdir -p ~/clawd/.noia && cat > ~/clawd/.noia/crm.json << 'CRMEOF'\n${json}\nCRMEOF`)
+  await fetch('/data/crm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data, null, 2),
+  })
 }
 
 // ── Build contacts from all sources ────────────────────

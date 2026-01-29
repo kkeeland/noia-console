@@ -1,5 +1,4 @@
 // Task API helpers — Beads CLI + GitHub Issues unified
-import { getGatewayUrl, getGatewayToken } from './config'
 import { listIssues, type GitHubIssue } from './github'
 
 // ── Types ──────────────────────────────────────────────
@@ -39,190 +38,94 @@ export interface UnifiedTask {
   ghRepo?: string
 }
 
-// ── Exec helper ────────────────────────────────────────
+// ── Data fetcher (local dev server endpoints) ──────────
 
-async function execCommand(command: string): Promise<string> {
-  const gatewayUrl = getGatewayUrl()
-  const gatewayToken = getGatewayToken()
-
-  const response = await fetch(`${gatewayUrl}/tools/invoke`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${gatewayToken}`,
-    },
-    body: JSON.stringify({ tool: 'exec', args: { command } }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`)
-  }
-
-  const data = await response.json()
-  if (!data.ok) {
-    throw new Error(data.error?.message || 'exec failed')
-  }
-
-  const text = data.result?.content
-    ?.filter((c: { type: string }) => c.type === 'text')
-    ?.map((c: { text: string }) => c.text)
-    ?.join('\n') || ''
-
-  return text.trim()
+interface BeadsJsonIssue {
+  id: string
+  title: string
+  description?: string
+  status: string
+  priority: number
+  issue_type?: string
+  labels: string[]
+  dependencies?: Array<{ depends_on_id: string; type: string }>
+  created_at?: string
+  closed_at?: string | null
 }
 
-// ── Parsers ────────────────────────────────────────────
+async function fetchBeadsJson(): Promise<BeadsJsonIssue[]> {
+  const res = await fetch('/data/beads-json')
+  if (!res.ok) throw new Error(`Failed to fetch beads data: ${res.status}`)
+  const data = await res.json()
+  if (!data.ok) throw new Error(data.error || 'Failed to load beads data')
+  return data.issues as BeadsJsonIssue[]
+}
 
-// Parse `bd list` output lines like:
-// ○ noia-cw9 [● P0] [task] [console epic] - EPIC: Noia Console v2
-// ✓ noia-jyj [P0] [task] [epic memory] - EPIC: Noia Memory Layer v2
-function parseListLine(line: string): BeadsTask | null {
-  const trimmed = line.trim()
-  if (!trimmed) return null
-
-  const isClosed = trimmed.startsWith('✓')
-  
-  // Extract ID
-  const idMatch = trimmed.match(/\b(noia-[a-z0-9]+)\b/)
-  if (!idMatch) return null
-  const id = idMatch[1]
-
-  // Extract priority — [● P0] or [P0]
-  const prioMatch = trimmed.match(/\[●?\s*P(\d)\]/)
-  const priority = prioMatch ? parseInt(prioMatch[1]) : 3
-
-  // Extract labels — [label1] [label2] but skip [● Px] and [task]
-  const labelMatches = [...trimmed.matchAll(/\[([^\]]+)\]/g)]
-  const labels = labelMatches
-    .map(m => m[1])
-    .filter(l => !l.match(/^●?\s*P\d$/) && l !== 'task')
-    .map(l => l.trim())
-
-  // Extract title — everything after the last "] - "
-  const titleMatch = trimmed.match(/\]\s*-\s*(.+)$/)
-  const title = titleMatch ? titleMatch[1].trim() : id
-
-  const isReady = false
+function jsonIssueToBeadsTask(issue: BeadsJsonIssue): BeadsTask {
+  // Extract dependency IDs where this issue depends on something
+  const dependsOn = issue.dependencies
+    ?.filter((d) => d.type === 'blocks')
+    ?.map((d) => d.depends_on_id) || []
 
   return {
-    id,
-    title,
-    priority,
-    status: isClosed ? 'closed' : 'open',
-    labels,
-    isReady,
+    id: issue.id,
+    title: issue.title,
+    priority: issue.priority ?? 3,
+    status: issue.status === 'open' ? 'open' : 'closed',
+    labels: issue.labels || [],
+    isReady: false,
+    description: issue.description,
+    dependsOn: dependsOn.length ? dependsOn : undefined,
   }
-}
-
-// Parse `bd ready` output
-function parseReadyOutput(output: string): string[] {
-  const ids: string[] = []
-  for (const line of output.split('\n')) {
-    const match = line.match(/\b(noia-[a-z0-9]+)\b/)
-    if (match) ids.push(match[1])
-  }
-  return ids
-}
-
-// Parse `bd show` output
-function parseShowOutput(output: string): Partial<BeadsTask> {
-  const result: Partial<BeadsTask> = {}
-
-  // Description
-  const descMatch = output.match(/DESCRIPTION\n([\s\S]*?)(?=\n(?:LABELS|DEPENDS|BLOCKS|$))/)
-  if (descMatch) result.description = descMatch[1].trim()
-
-  // Labels
-  const labelMatch = output.match(/LABELS:\s*(.+)/)
-  if (labelMatch) result.labels = labelMatch[1].split(',').map(l => l.trim())
-
-  // Dependencies
-  const deps: string[] = []
-  const depSection = output.match(/DEPENDS ON\n([\s\S]*?)(?=\n(?:BLOCKS|$)|$)/)
-  if (depSection) {
-    for (const line of depSection[1].split('\n')) {
-      const m = line.match(/\b(noia-[a-z0-9]+)\b/)
-      if (m) deps.push(m[1])
-    }
-  }
-  if (deps.length) result.dependsOn = deps
-
-  // Blocks
-  const blockers: string[] = []
-  const blockSection = output.match(/BLOCKS\n([\s\S]*?)(?=\n(?:DEPENDS|$)|$)/)
-  if (blockSection) {
-    for (const line of blockSection[1].split('\n')) {
-      const m = line.match(/\b(noia-[a-z0-9]+)\b/)
-      if (m) blockers.push(m[1])
-    }
-  }
-  if (blockers.length) result.blocks = blockers
-
-  return result
 }
 
 // ── Beads API ──────────────────────────────────────────
 
-export async function listBeadsTasks(all = false): Promise<BeadsTask[]> {
-  const cmd = all ? 'cd ~/clawd && bd list --all' : 'cd ~/clawd && bd list'
-  const raw = await execCommand(cmd)
-  const tasks: BeadsTask[] = []
-  for (const line of raw.split('\n')) {
-    const task = parseListLine(line)
-    if (task) tasks.push(task)
-  }
+export async function listBeadsTasks(_all = false): Promise<BeadsTask[]> {
+  const issues = await fetchBeadsJson()
+  const tasks = issues.map(jsonIssueToBeadsTask)
+  // If not showing all, filter to open only
+  if (!_all) return tasks.filter((t) => t.status === 'open')
   return tasks
 }
 
 export async function getBeadsReady(): Promise<string[]> {
-  const raw = await execCommand('cd ~/clawd && bd ready')
-  return parseReadyOutput(raw)
+  // Compute "ready" from JSONL: open tasks with no unresolved dependencies
+  const issues = await fetchBeadsJson()
+  const closedIds = new Set(issues.filter((i) => i.status !== 'open').map((i) => i.id))
+  const readyIds: string[] = []
+
+  for (const issue of issues) {
+    if (issue.status !== 'open') continue
+    const deps = issue.dependencies?.filter((d) => d.type === 'blocks') || []
+    const allDepsResolved = deps.every((d) => closedIds.has(d.depends_on_id))
+    if (allDepsResolved) readyIds.push(issue.id)
+  }
+  return readyIds
 }
 
 export async function getBeadsTask(id: string): Promise<BeadsTask | null> {
-  const raw = await execCommand(`cd ~/clawd && bd show ${id}`)
-  if (!raw) return null
-
-  // Parse the header line
-  const headerTask = parseListLine(raw.split('\n')[0])
-  if (!headerTask) {
-    // Try to extract from show format: ○ noia-7q4 · Title   [● P1 · OPEN]
-    const m = raw.match(/([○✓])\s+(noia-[a-z0-9]+)\s*·\s*(.+?)\s+\[●?\s*P(\d)\s*·\s*(\w+)\]/)
-    if (!m) return null
-    const task: BeadsTask = {
-      id: m[2],
-      title: m[3].trim(),
-      priority: parseInt(m[4]),
-      status: m[5].toLowerCase() === 'open' ? 'open' : 'closed',
-      labels: [],
-      isReady: false,
-    }
-    const details = parseShowOutput(raw)
-    return { ...task, ...details, labels: details.labels || task.labels }
-  }
-
-  const details = parseShowOutput(raw)
-  return { ...headerTask, ...details, labels: details.labels?.length ? details.labels : headerTask.labels }
+  const issues = await fetchBeadsJson()
+  const issue = issues.find((i) => i.id === id)
+  if (!issue) return null
+  return jsonIssueToBeadsTask(issue)
 }
 
 export async function createBeadsTask(
-  title: string,
-  priority?: number,
-  labels?: string[],
-  description?: string
+  _title: string,
+  _priority?: number,
+  _labels?: string[],
+  _description?: string,
 ): Promise<string> {
-  let cmd = `cd ~/clawd && bd create "${title.replace(/"/g, '\\"')}"`
-  if (priority !== undefined) cmd += ` -p ${priority}`
-  if (labels?.length) cmd += ` -l ${labels.join(',')}`
-  if (description) cmd += ` --description="${description.replace(/"/g, '\\"')}"`
-
-  const raw = await execCommand(cmd)
-  const match = raw.match(/\b(noia-[a-z0-9]+)\b/)
-  return match ? match[1] : raw
+  // Task creation requires CLI access — not available via local data endpoint.
+  // TODO: add a /data/beads-create POST endpoint or use gateway sessions_send.
+  throw new Error('Task creation not yet supported via local data endpoints')
 }
 
-export async function closeBeadsTask(id: string): Promise<void> {
-  await execCommand(`cd ~/clawd && bd close ${id}`)
+export async function closeBeadsTask(_id: string): Promise<void> {
+  // Task closing requires CLI access — not available via local data endpoint.
+  // TODO: add a /data/beads-close POST endpoint or use gateway sessions_send.
+  throw new Error('Task closing not yet supported via local data endpoints')
 }
 
 // ── Move task between columns ──────────────────────────
