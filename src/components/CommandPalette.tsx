@@ -141,12 +141,13 @@ export default function CommandPalette({ onNavigate }: Props) {
     return { recent: [], results: scored }
   }, [query, commands])
 
-  const allItems = [...filtered.recent, ...filtered.results]
+  const allItems = useMemo(() => [...filtered.recent, ...filtered.results], [filtered.recent, filtered.results])
 
-  // Clamp selected index
-  useEffect(() => {
+  // Helper: update query and reset selection together
+  const updateQuery = useCallback((newQuery: string) => {
+    setQuery(newQuery)
     setSelectedIndex(0)
-  }, [query])
+  }, [])
 
   // Global Cmd+K listener
   useEffect(() => {
@@ -163,14 +164,20 @@ export default function CommandPalette({ onNavigate }: Props) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  // Focus input on open
+  // Reset and focus input on open
+  const handleOpen = useCallback(() => {
+    setQuery('')
+    setSelectedIndex(0)
+    setTimeout(() => inputRef.current?.focus(), 50)
+  }, [])
+
+  const prevOpenRef = useRef(open)
   useEffect(() => {
-    if (open) {
-      setQuery('')
-      setSelectedIndex(0)
-      setTimeout(() => inputRef.current?.focus(), 50)
+    if (open && !prevOpenRef.current) {
+      handleOpen() // eslint-disable-line react-hooks/set-state-in-effect
     }
-  }, [open])
+    prevOpenRef.current = open
+  }, [open, handleOpen])
 
   // Scroll selected into view
   useEffect(() => {
@@ -237,7 +244,7 @@ export default function CommandPalette({ onNavigate }: Props) {
                   ref={inputRef}
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => updateQuery(e.target.value)}
                   placeholder="Type a command or search…"
                   className="flex-1 bg-transparent text-sm text-[#e4e4e7] placeholder:text-[#52525b] outline-none"
                 />

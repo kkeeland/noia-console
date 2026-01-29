@@ -293,7 +293,7 @@ export default function DailyBriefing() {
   }, [])
 
   useEffect(() => {
-    loadAll()
+    loadAll() // eslint-disable-line react-hooks/set-state-in-effect
   }, [loadAll])
 
   const now = new Date()

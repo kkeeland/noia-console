@@ -57,7 +57,7 @@ export function humanReadableSchedule(cron: string): string {
   const parts = cron.trim().split(/\s+/)
   if (parts.length < 5) return cron
 
-  const [min, hour, dom, _mon, dow] = parts
+  const [min, hour, dom, /* mon */, dow] = parts
 
   // Check presets first
   const preset = SCHEDULE_PRESETS.find(p => p.value === cron)

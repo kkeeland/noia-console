@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { createElement, useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Users, FolderGit2, Scale, Heart, Lightbulb, Loader2, X, ArrowRight, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 import { getEntities, getRelations, type Entity, type Relation } from '../lib/memory'
@@ -69,7 +69,7 @@ function ForceGraph({
     [relations]
   )
 
-  // Initialize nodes
+  // Initialize nodes from entities (runs when data changes)
   useEffect(() => {
     const w = 600
     const h = 400
@@ -87,7 +87,7 @@ function ForceGraph({
         radius: 8 + Math.min(6, (relations.filter(r => r.from === e.name || r.to === e.name).length) * 2),
       }
     })
-    setNodes(newNodes)
+    setNodes(newNodes) // eslint-disable-line react-hooks/set-state-in-effect
   }, [entities, relations])
 
   // Force simulation
@@ -311,8 +311,13 @@ function ForceGraph({
 }
 
 // --- Entity Card ---
+function renderTypeIcon(type: string, className: string) {
+  const Icon = getTypeIcon(type)
+  if (!Icon) return null
+  return createElement(Icon, { className })
+}
+
 function EntityCard({ entity, onClick, index }: { entity: Entity; onClick: () => void; index: number }) {
-  const Icon = getTypeIcon(entity.type)
   const style = getTypeStyle(entity.type)
   const props = Object.entries(entity.properties).filter(([k]) => k !== 'fullText' && k !== 'context')
 
@@ -327,7 +332,7 @@ function EntityCard({ entity, onClick, index }: { entity: Entity; onClick: () =>
     >
       <div className="flex items-start gap-3">
         <div className={`shrink-0 p-2 rounded-lg border ${style}`}>
-          {Icon && <Icon className="w-4 h-4" />}
+          {renderTypeIcon(entity.type, "w-4 h-4")}
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-medium text-[#e4e4e7] text-sm truncate group-hover:text-[#8b5cf6] transition-colors">
@@ -358,7 +363,6 @@ function EntityCard({ entity, onClick, index }: { entity: Entity; onClick: () =>
 // --- Entity Detail ---
 function EntityDetail({ entity, relations, onClose }: { entity: Entity; relations: Relation[]; onClose: () => void }) {
   const style = getTypeStyle(entity.type)
-  const Icon = getTypeIcon(entity.type)
   const allProps = Object.entries(entity.properties)
 
   return (
@@ -371,7 +375,7 @@ function EntityDetail({ entity, relations, onClose }: { entity: Entity; relation
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className={`p-2.5 rounded-lg border ${style}`}>
-            {Icon && <Icon className="w-5 h-5" />}
+            {renderTypeIcon(entity.type, "w-5 h-5")}
           </div>
           <div>
             <h3 className="font-semibold text-[#e4e4e7]">{entity.name}</h3>
@@ -443,7 +447,7 @@ export default function MemoryEntities() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true) // eslint-disable-line react-hooks/set-state-in-effect
     Promise.all([getEntities(), getRelations()])
       .then(([ents, rels]) => {
         setEntities(ents)

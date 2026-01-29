@@ -13,7 +13,7 @@ export function useGatewayStatus(): ConnectionState {
 
   useEffect(() => {
     const gw = getGateway()
-    setState(gw.getState())
+    setState(gw.getState()) // eslint-disable-line react-hooks/set-state-in-effect
 
     const handler = (newState: unknown) => {
       setState(newState as ConnectionState)
@@ -78,7 +78,9 @@ export function useGatewayStatusDetail() {
  */
 export function useGatewayEvent(eventName: string, callback: (data: unknown) => void): void {
   const callbackRef = useRef(callback)
-  callbackRef.current = callback
+  useEffect(() => {
+    callbackRef.current = callback
+  })
 
   useEffect(() => {
     const gw = getGateway()
@@ -238,12 +240,16 @@ export function useChatStream(sessionKey: string | null) {
   }, [sessionKey]))
 
   // Reset when session changes
+  const prevSessionRef = useRef(sessionKey)
   useEffect(() => {
-    setMessages([])
-    setIsStreaming(false)
-    setStreamingText('')
-    setStreamingThinking('')
-    streamingRef.current = { text: '', thinking: '' }
+    if (prevSessionRef.current !== sessionKey) {
+      prevSessionRef.current = sessionKey
+      setMessages([]) // eslint-disable-line react-hooks/set-state-in-effect
+      setIsStreaming(false)
+      setStreamingText('')
+      setStreamingThinking('')
+      streamingRef.current = { text: '', thinking: '' }
+    }
   }, [sessionKey])
 
   const appendMessage = useCallback((msg: Message) => {

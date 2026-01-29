@@ -123,11 +123,7 @@ function FactTypeBreakdown({ facts }: { facts: Fact[] }) {
 
 // --- Search history panel ---
 function SearchHistoryPanel() {
-  const [history, setHistory] = useState<SearchHistoryEntry[]>([])
-
-  useEffect(() => {
-    setHistory(getSearchHistory())
-  }, [])
+  const [history, setHistory] = useState<SearchHistoryEntry[]>(() => getSearchHistory())
 
   const handleClear = () => {
     clearSearchHistory()
@@ -210,7 +206,7 @@ export default function MemoryStats() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => { loadAll() }, []) // eslint-disable-line react-hooks/set-state-in-effect
 
   const lastIndexedDisplay = useMemo(() => {
     if (!stats?.lastIndexed) return null

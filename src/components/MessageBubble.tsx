@@ -157,13 +157,13 @@ const MessageBubble = memo(function MessageBubble({ message, index, isStreamingM
     (c): c is MessageContent & { type: 'toolCall' } => c.type === 'toolCall'
   )
 
-  if (!text && !thinking && toolCalls.length === 0) return null
-
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }, [text])
+
+  if (!text && !thinking && toolCalls.length === 0) return null
 
   const timestamp = message.timestamp
     ? new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

@@ -114,7 +114,7 @@ function RunHistory({ jobId }: { jobId: string }) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
+    setLoading(true) // eslint-disable-line react-hooks/set-state-in-effect
     cronRuns(jobId)
       .then(r => { if (!cancelled) setRuns(r) })
       .catch(e => { if (!cancelled) setError(e.message) })

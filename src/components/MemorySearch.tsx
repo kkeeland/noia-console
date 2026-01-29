@@ -224,6 +224,7 @@ export default function MemorySearch() {
   const inputRef = useRef<HTMLInputElement>(null)
   const abortRef = useRef<AbortController | null>(null)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const history = useMemo(() => getSearchHistory(), [response])
 
   const doSearch = useCallback(async (q: string) => {

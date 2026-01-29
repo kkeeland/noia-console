@@ -43,7 +43,7 @@ export default function RepoDetail({ repo, onClose }: RepoDetailProps) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
+    setLoading(true) // eslint-disable-line react-hooks/set-state-in-effect
 
     Promise.all([
       getRepoDetails(nwo),

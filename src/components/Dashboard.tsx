@@ -133,7 +133,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       setHealth(healthData)
       setError(null)
       return healthData
-    } catch (e) {
+    } catch {
       setError('Cannot reach gateway')
       setHealth(null)
       return null

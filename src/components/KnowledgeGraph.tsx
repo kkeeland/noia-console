@@ -78,7 +78,7 @@ export default function KnowledgeGraph() {
 
   // Load data
   useEffect(() => {
-    setLoading(true)
+    setLoading(true) // eslint-disable-line react-hooks/set-state-in-effect
     Promise.all([getEntities(), getRelations()])
       .then(([ents, rels]) => {
         setEntities(ents)
