@@ -2,15 +2,12 @@ import { motion } from 'framer-motion'
 import {
   Activity,
   MessageCircle,
-  MessageSquare,
   Brain,
-  Zap,
-  Settings,
   CheckSquare,
-  Users,
+  Settings,
 } from 'lucide-react'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'settings'
+type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 interface MobileNavProps {
   activeView: View
@@ -20,11 +17,8 @@ interface MobileNavProps {
 const navItems: { id: View; label: string; icon: typeof Activity }[] = [
   { id: 'dashboard', label: 'Bridge', icon: Activity },
   { id: 'chat', label: 'Chat', icon: MessageCircle },
-  { id: 'channels', label: 'Channels', icon: MessageSquare },
-  { id: 'people', label: 'People', icon: Users },
   { id: 'memory', label: 'Memory', icon: Brain },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-  { id: 'agents', label: 'Agents', icon: Zap },
   { id: 'settings', label: 'Settings', icon: Settings },
 ]
 
@@ -40,7 +34,7 @@ export default function MobileNav({ activeView, setActiveView }: MobileNavProps)
             <button
               key={item.id}
               onClick={() => setActiveView(item.id)}
-              className="relative flex flex-col items-center justify-center flex-1 py-2 min-w-0"
+              className="relative flex flex-col items-center justify-center flex-1 min-h-[44px] min-w-[44px] py-1.5"
             >
               {/* Active pill indicator */}
               {isActive && (

@@ -149,7 +149,7 @@ export default function Agents() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="grid grid-cols-4 gap-3 mb-6"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
       >
         {[
           { label: 'Total', value: counts.total, color: 'text-[#e4e4e7]' },

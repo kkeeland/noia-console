@@ -161,3 +161,35 @@ button, a, input, textarea, select {
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Mobile: prevent horizontal overflow */
+@media (max-width: 767px) {
+  html, body, #root {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Ensure touch-friendly tap targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline/tiny elements that don't need 44px */
+  .text-\[10px\], .text-xs {
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* Reduce padding on mobile views */
+  .p-6 {
+    padding: 1rem;
+  }
+  .p-8 {
+    padding: 1.25rem;
+  }
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

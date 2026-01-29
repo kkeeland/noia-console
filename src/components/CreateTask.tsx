@@ -94,7 +94,7 @@ export default function CreateTask({ onClose, onCreated }: CreateTaskProps) {
               <label className="block text-xs font-semibold text-[#52525b] uppercase tracking-wider mb-1.5">
                 Priority
               </label>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {prioOptions.map((opt) => (
                   <button
                     key={opt.value}

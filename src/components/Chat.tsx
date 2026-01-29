@@ -151,7 +151,20 @@ export default function Chat() {
 
   return (
     <div className="h-full flex overflow-hidden">
-      {/* Sidebar */}
+      {/* Mobile sidebar overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar — overlay on mobile, inline on desktop */}
       <AnimatePresence initial={false}>
         {sidebarOpen && (
           <motion.div
@@ -159,7 +172,7 @@ export default function Chat() {
             animate={{ width: 304, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="flex-shrink-0 border-r border-[#1e1e2e] overflow-hidden"
+            className="flex-shrink-0 border-r border-[#1e1e2e] overflow-hidden max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-50 max-md:bg-[#0a0a0f]"
           >
             <div className="w-[304px] h-full">
               <SessionList
@@ -172,19 +185,6 @@ export default function Chat() {
               />
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mobile sidebar overlay */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
         )}
       </AnimatePresence>
 

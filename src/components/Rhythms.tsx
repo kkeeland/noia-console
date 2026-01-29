@@ -501,7 +501,7 @@ function RhythmFormModal({
             </div>
 
             {scheduleMode === 'preset' ? (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {SCHEDULE_PRESETS.map(preset => (
                   <button
                     key={preset.value}

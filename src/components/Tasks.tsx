@@ -280,8 +280,8 @@ export default function Tasks() {
 
       {/* Board */}
       {!loading && (
-        <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
-          <div className="grid grid-cols-3 gap-5 h-full min-w-[720px]">
+        <div className="flex-1 overflow-x-auto md:overflow-y-hidden overflow-y-auto p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 h-full md:min-w-[720px]">
             {COLUMNS.map(({ key, label, icon: Icon, color }) => (
               <motion.div
                 key={key}
