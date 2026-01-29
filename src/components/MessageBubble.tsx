@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, ChevronRight, Copy, Check, Sparkles, Wrench } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
 import type { Message, MessageContent } from '../types/clawdbot'
 import { getMessageText, hasThinking, getThinkingText } from '../lib/api'
 
@@ -256,6 +257,7 @@ const MessageBubble = memo(function MessageBubble({ message, index, isStreamingM
                 <div className="gh-markdown">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight]}
                     components={{
                       code({ className, children, ...props }) {
                         const isInline = !className && typeof children === 'string' && !children.includes('\n')

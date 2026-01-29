@@ -151,6 +151,14 @@ export async function injectToSession(sessionKey: string, role: string, content:
   await invokeTool('sessions_inject', { sessionKey, role, content })
 }
 
+export async function createSession(name?: string, model?: string): Promise<Session> {
+  const args: Record<string, unknown> = { channel: 'webchat' }
+  if (name) args.displayName = name
+  if (model) args.model = model
+  const data = await invokeTool<{ session: Session }>('sessions_create', args)
+  return data.session
+}
+
 // Extract text content from a message
 export function getMessageText(message: Message): string {
   return message.content

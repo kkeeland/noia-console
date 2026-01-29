@@ -17,6 +17,7 @@ import SetupScreen from './components/SetupScreen'
 import { isConfigured } from './lib/config'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useMobileDetect } from './hooks/useMobileDetect'
+import { useGatewayConnect } from './hooks/useGateway'
 
 type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
@@ -27,6 +28,9 @@ function App() {
 
   // Global keyboard shortcuts (⌘1-7, ⌘K, ⌘/, Escape)
   useKeyboardShortcuts({ setActiveView })
+
+  // Auto-connect WebSocket to gateway for real-time streaming
+  useGatewayConnect()
 
   const handleSetupComplete = useCallback(() => {
     setConfigured(true)

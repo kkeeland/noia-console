@@ -6,6 +6,7 @@ import {
   getSessionHistory,
   sendToSession,
   abortSession,
+  createSession,
   formatSessionName,
   getChannelEmoji,
 } from '../lib/api'
@@ -27,6 +28,7 @@ export default function Chat() {
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [creatingSession, setCreatingSession] = useState(false)
 
   const wsStatus = useGatewayStatus()
 
@@ -140,6 +142,25 @@ export default function Chat() {
     }
   }, [selectedSession])
 
+  // --- New session ---
+  const handleNewSession = useCallback(async () => {
+    if (creatingSession) return
+    setCreatingSession(true)
+    setError(null)
+    try {
+      const session = await createSession()
+      // Refresh session list and select the new one
+      await loadSessions()
+      setSelectedSession(session)
+      setAutoScroll(true)
+    } catch (err) {
+      console.error('Failed to create session:', err)
+      setError('Failed to create session')
+    } finally {
+      setCreatingSession(false)
+    }
+  }, [creatingSession, loadSessions])
+
   // --- Select session ---
   const handleSelectSession = useCallback((session: Session) => {
     setSelectedSession(session)
@@ -182,6 +203,8 @@ export default function Chat() {
                 onSelect={handleSelectSession}
                 onRefresh={loadSessions}
                 onCollapse={() => setSidebarOpen(false)}
+                onNewSession={handleNewSession}
+                creatingSession={creatingSession}
               />
             </div>
           </motion.div>

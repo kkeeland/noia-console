@@ -12,11 +12,13 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "framer-motion": "^12.29.2",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-force-graph-2d": "^1.29.0",
     "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {

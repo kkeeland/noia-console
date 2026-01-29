@@ -265,6 +265,22 @@ export function useChatStream(sessionKey: string | null) {
 }
 
 /**
+ * Auto-connect the gateway WebSocket on mount. Call once at app level.
+ */
+export function useGatewayConnect(): void {
+  useEffect(() => {
+    const gw = getGateway()
+    if (gw.getState() === 'disconnected') {
+      gw.connect()
+    }
+    // Cleanup on unmount (app teardown)
+    return () => {
+      // Don't disconnect — singleton persists across view changes
+    }
+  }, [])
+}
+
+/**
  * Get the gateway instance for imperative use
  */
 export function useGateway() {

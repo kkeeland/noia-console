@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, RefreshCw, X, PanelLeftClose, MessageSquare } from 'lucide-react'
+import { Search, RefreshCw, X, PanelLeftClose, MessageSquare, Plus } from 'lucide-react'
 import { formatSessionName, getChannelEmoji, formatRelativeTime } from '../lib/api'
 import type { Session } from '../types/clawdbot'
 
@@ -11,6 +11,8 @@ interface SessionListProps {
   onSelect: (session: Session) => void
   onRefresh: () => void
   onCollapse?: () => void
+  onNewSession?: () => void
+  creatingSession?: boolean
 }
 
 // Group sessions by time period
@@ -42,7 +44,7 @@ function groupByTime(sessions: Session[]): { label: string; sessions: Session[] 
   return groups.filter(g => g.sessions.length > 0)
 }
 
-export default function SessionList({ sessions, selectedKey, loading, onSelect, onRefresh, onCollapse }: SessionListProps) {
+export default function SessionList({ sessions, selectedKey, loading, onSelect, onRefresh, onCollapse, onNewSession, creatingSession }: SessionListProps) {
   const [search, setSearch] = useState('')
 
   const filtered = useMemo(() => {
@@ -88,6 +90,24 @@ export default function SessionList({ sessions, selectedKey, loading, onSelect, 
           </button>
         )}
       </div>
+
+      {/* New Session */}
+      {onNewSession && (
+        <div className="px-3 pt-2">
+          <button
+            onClick={onNewSession}
+            disabled={creatingSession}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#8b5cf6]/10 hover:bg-[#8b5cf6]/20 border border-[#8b5cf6]/20 hover:border-[#8b5cf6]/40 text-[#8b5cf6] text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {creatingSession ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
+            <span>{creatingSession ? 'Creating...' : 'New Session'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-3 py-2">

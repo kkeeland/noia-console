@@ -301,9 +301,8 @@ export class GatewayWS {
   }
 }
 
-// Get singleton without auto-connecting
-// WebSocket connection is disabled until the gateway WS protocol is verified.
-// All API calls fall back to HTTP /tools/invoke which works correctly.
+// Get singleton — call .connect() once at app init (useGatewayConnect hook).
+// Falls back to HTTP /tools/invoke when WS is disconnected.
 export function getGateway(): GatewayWS {
   return GatewayWS.getInstance()
 }
