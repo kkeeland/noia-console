@@ -14,6 +14,8 @@ import Channels from './components/Channels'
 import Tasks from './components/Tasks'
 import People from './components/People'
 import SetupScreen from './components/SetupScreen'
+import NotificationBell from './components/NotificationBell'
+import { ToastContainer } from './components/Toast'
 import { isConfigured } from './lib/config'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useMobileDetect } from './hooks/useMobileDetect'
@@ -53,7 +55,12 @@ function App() {
       )}
       
       {/* Main Content */}
-      <main className={`flex-1 overflow-hidden ${isMobile ? 'pb-[72px]' : ''}`}>
+      <main className={`relative flex-1 overflow-hidden ${isMobile ? 'pb-[72px]' : ''}`}>
+        {/* Top bar notification bell */}
+        <div className="absolute top-4 right-6 z-40">
+          <NotificationBell />
+        </div>
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}
@@ -82,6 +89,9 @@ function App() {
       {isMobile && (
         <MobileNav activeView={activeView} setActiveView={setActiveView} />
       )}
+
+      {/* Toast notifications */}
+      <ToastContainer />
     </div>
   )
 }

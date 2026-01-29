@@ -22,6 +22,7 @@ import { getGatewayUrl, getGatewayToken } from '../lib/config'
 import { listSessions, formatRelativeTime, formatSessionName, getChannelEmoji } from '../lib/api'
 import { getGateway, type ConnectionState } from '../lib/gateway-ws'
 import type { Session } from '../types/clawdbot'
+import DailyBriefing from './DailyBriefing'
 
 // -------------------------------------------------------------------
 // Types
@@ -394,6 +395,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           )
         })}
       </div>
+
+      {/* Daily Briefing */}
+      <DailyBriefing />
 
       {/* Quick Actions */}
       <motion.div
