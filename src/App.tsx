@@ -1,34 +1,54 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Target, 
-  MessageCircle, 
-  Brain, 
-  Clock, 
-  Zap, 
-  Settings,
-  Activity,
-  ChevronRight
-} from 'lucide-react'
 import Sidebar from './components/Sidebar'
+import MobileNav from './components/MobileNav'
 import Dashboard from './components/Dashboard'
 import Chat from './components/Chat'
 import Memory from './components/Memory'
 import Rhythms from './components/Rhythms'
+import Settings from './components/Settings'
+import Code from './components/Code'
+import Agents from './components/Agents'
+import Channels from './components/Channels'
+import Tasks from './components/Tasks'
+import People from './components/People'
+import SetupScreen from './components/SetupScreen'
+import { isConfigured } from './lib/config'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useMobileDetect } from './hooks/useMobileDetect'
 
-type View = 'dashboard' | 'chat' | 'memory' | 'rhythms' | 'settings'
+type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'settings'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
-  const [isOnline] = useState(true)
+  const [configured, setConfigured] = useState(isConfigured())
+  const { isMobile } = useMobileDetect()
+
+  // Global keyboard shortcuts (⌘1-7, ⌘K, ⌘/, Escape)
+  useKeyboardShortcuts({ setActiveView })
+
+  const handleSetupComplete = useCallback(() => {
+    setConfigured(true)
+  }, [])
+
+  const handleConfigChange = useCallback(() => {
+    setConfigured(isConfigured())
+  }, [])
+
+  // First-run setup
+  if (!configured) {
+    return <SetupScreen onComplete={handleSetupComplete} />
+  }
 
   return (
     <div className="flex h-screen bg-[#0a0a0f] text-[#e4e4e7]">
-      {/* Sidebar */}
-      <Sidebar activeView={activeView} setActiveView={setActiveView} isOnline={isOnline} />
+      {/* Sidebar — hidden on mobile */}
+      {!isMobile && (
+        <Sidebar activeView={activeView} setActiveView={setActiveView} />
+      )}
       
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className={`flex-1 overflow-hidden ${isMobile ? 'pb-[72px]' : ''}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}
@@ -38,14 +58,24 @@ function App() {
             transition={{ duration: 0.2 }}
             className="h-full"
           >
-            {activeView === 'dashboard' && <Dashboard />}
+            {activeView === 'dashboard' && <Dashboard onNavigate={(v) => setActiveView(v as View)} />}
             {activeView === 'chat' && <Chat />}
+            {activeView === 'channels' && <Channels />}
+            {activeView === 'people' && <People />}
             {activeView === 'memory' && <Memory />}
             {activeView === 'rhythms' && <Rhythms />}
-            {activeView === 'settings' && <div className="p-8"><h1 className="text-2xl font-semibold">Settings</h1></div>}
+            {activeView === 'code' && <Code />}
+            {activeView === 'tasks' && <Tasks />}
+            {activeView === 'agents' && <Agents />}
+            {activeView === 'settings' && <Settings onConfigChange={handleConfigChange} />}
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Mobile bottom tab bar */}
+      {isMobile && (
+        <MobileNav activeView={activeView} setActiveView={setActiveView} />
+      )}
     </div>
   )
 }

@@ -1,0 +1,311 @@
+/*
+ * GitHub-style Markdown — Dark Theme for Noia Console
+ * Adapted from KrauseFx/markdown-to-html-github-style
+ * Recolored for dark backgrounds (#0a0a0f / #12121a)
+ *
+ * Usage: wrap ReactMarkdown output in <div className="gh-markdown">
+ */
+
+.gh-markdown {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e4e4e7;
+  word-wrap: break-word;
+}
+
+/* Headings */
+.gh-markdown h1,
+.gh-markdown h2,
+.gh-markdown h3,
+.gh-markdown h4,
+.gh-markdown h5,
+.gh-markdown h6 {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #f4f4f5;
+}
+
+.gh-markdown h1 {
+  font-size: 1.75em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #27272a;
+}
+
+.gh-markdown h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #27272a;
+}
+
+.gh-markdown h3 {
+  font-size: 1.25em;
+}
+
+.gh-markdown h4 {
+  font-size: 1em;
+}
+
+.gh-markdown h5 {
+  font-size: 0.875em;
+}
+
+.gh-markdown h6 {
+  font-size: 0.85em;
+  color: #71717a;
+}
+
+/* Paragraphs */
+.gh-markdown p {
+  margin-top: 0;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  color: #d4d4d8;
+}
+
+/* Links */
+.gh-markdown a {
+  color: #a78bfa;
+  text-decoration: none;
+}
+
+.gh-markdown a:hover {
+  color: #c4b5fd;
+  text-decoration: underline;
+}
+
+/* Strong / Bold */
+.gh-markdown strong {
+  color: #f4f4f5;
+  font-weight: 600;
+}
+
+/* Emphasis / Italic */
+.gh-markdown em {
+  font-style: italic;
+}
+
+/* Horizontal Rule */
+.gh-markdown hr {
+  height: 1px;
+  margin: 24px 0;
+  padding: 0;
+  background-color: #27272a;
+  border: none;
+}
+
+/* Lists */
+.gh-markdown ul,
+.gh-markdown ol {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-left: 2em;
+}
+
+.gh-markdown ul {
+  list-style-type: disc;
+}
+
+.gh-markdown ol {
+  list-style-type: decimal;
+}
+
+.gh-markdown li {
+  color: #d4d4d8;
+  line-height: 1.6;
+}
+
+.gh-markdown li + li {
+  margin-top: 0.25em;
+}
+
+.gh-markdown li > p {
+  margin-top: 16px;
+}
+
+.gh-markdown li > ul,
+.gh-markdown li > ol {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Task lists */
+.gh-markdown input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: #8b5cf6;
+}
+
+/* Blockquotes */
+.gh-markdown blockquote {
+  margin: 0 0 16px 0;
+  padding: 0 1em;
+  color: #a1a1aa;
+  border-left: 3px solid #8b5cf6;
+}
+
+.gh-markdown blockquote p {
+  color: #a1a1aa;
+}
+
+.gh-markdown blockquote > :first-child {
+  margin-top: 0;
+}
+
+.gh-markdown blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Inline code */
+.gh-markdown code {
+  padding: 0.2em 0.4em;
+  margin: 0;
+  font-size: 85%;
+  font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo,
+    monospace;
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #c4b5fd;
+  border-radius: 4px;
+  word-wrap: break-word;
+}
+
+/* Code blocks */
+.gh-markdown pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #0f0f17;
+  border-radius: 8px;
+  border: 1px solid #1e1e2e;
+}
+
+.gh-markdown pre code {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+  font-size: 100%;
+  color: #e4e4e7;
+  border-radius: 0;
+}
+
+/* Code block header (language label) — applied via ReactMarkdown components */
+.gh-markdown .code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+  color: #71717a;
+  background-color: #12121a;
+  border: 1px solid #1e1e2e;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.gh-markdown .code-header + pre {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Tables */
+.gh-markdown table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  margin-bottom: 16px;
+  border-spacing: 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.gh-markdown table th {
+  font-weight: 600;
+  padding: 8px 13px;
+  border: 1px solid #27272a;
+  color: #a1a1aa;
+  background-color: #12121a;
+}
+
+.gh-markdown table td {
+  padding: 8px 13px;
+  border: 1px solid #27272a;
+  color: #d4d4d8;
+}
+
+.gh-markdown table tr {
+  background-color: transparent;
+  border-top: 1px solid #27272a;
+}
+
+.gh-markdown table tr:nth-child(2n) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Images */
+.gh-markdown img {
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+/* Definition lists */
+.gh-markdown dt {
+  font-weight: 600;
+  color: #f4f4f5;
+  margin-top: 16px;
+}
+
+.gh-markdown dd {
+  margin-left: 0;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+/* Footnotes */
+.gh-markdown .footnotes {
+  font-size: 12px;
+  color: #71717a;
+  border-top: 1px solid #27272a;
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+/* Keyboard keys */
+.gh-markdown kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  font-family: "SF Mono", SFMono-Regular, Consolas, monospace;
+  line-height: 10px;
+  color: #d4d4d8;
+  vertical-align: middle;
+  background-color: #1e1e2e;
+  border: 1px solid #27272a;
+  border-radius: 4px;
+  box-shadow: inset 0 -1px 0 #27272a;
+}
+
+/* Selection */
+.gh-markdown ::selection {
+  background-color: rgba(139, 92, 246, 0.3);
+}
+
+/* Spacing cleanup: first/last children */
+.gh-markdown > :first-child {
+  margin-top: 0 !important;
+}
+
+.gh-markdown > :last-child {
+  margin-bottom: 0 !important;
+}

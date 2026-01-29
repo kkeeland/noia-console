@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./styles/github-markdown-dark.css";
 
 /* Custom fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -20,6 +21,7 @@
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -31,28 +33,34 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
+/* Thin dark scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--noia-bg);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--noia-border);
-  border-radius: 4px;
+  background: rgba(30, 30, 46, 0.8);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--noia-accent-muted);
 }
 
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 30, 46, 0.8) transparent;
+}
+
 /* Selection */
 ::selection {
-  background: var(--noia-accent);
+  background: rgba(139, 92, 246, 0.4);
   color: white;
 }
 
@@ -62,9 +70,20 @@ body {
   outline-offset: 2px;
 }
 
+/* Smooth transitions on interactive elements */
+button, a, input, textarea, select {
+  transition: all 0.2s ease;
+}
+
 /* Glow effect for accent elements */
 .noia-glow {
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.noia-glow-strong {
+  box-shadow:
+    0 0 15px rgba(139, 92, 246, 0.4),
+    0 0 45px rgba(139, 92, 246, 0.15);
 }
 
 /* Subtle gradient backgrounds */
@@ -72,9 +91,73 @@ body {
   background: linear-gradient(135deg, var(--noia-surface) 0%, var(--noia-bg) 100%);
 }
 
-/* Glass effect */
+/* Glassmorphism */
 .noia-glass {
-  background: rgba(18, 18, 26, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--noia-border);
+  background: rgba(18, 18, 26, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30, 30, 46, 0.6);
+}
+
+.noia-glass-strong {
+  background: rgba(18, 18, 26, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(30, 30, 46, 0.8);
+}
+
+/* Animated border gradient */
+.noia-border-gradient {
+  position: relative;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.noia-border-gradient::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--noia-accent), var(--noia-accent-muted), transparent);
+  z-index: -1;
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+.noia-border-gradient:hover::before {
+  opacity: 1;
+}
+
+/* Text gradient utility */
+.noia-text-gradient {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulse ring animation for status indicators */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.noia-pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  animation: pulse-ring 1.5s ease-out infinite;
+  background: inherit;
+}
+
+/* Safe area for notched devices (iPhone etc.) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
