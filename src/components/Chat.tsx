@@ -71,7 +71,7 @@ export default function Chat() {
       try {
         const data = await getSessionHistory(selectedSession!.key, 100, true)
         if (!cancelled) {
-          replaceMessages(data.reverse())
+          replaceMessages(data)
         }
       } catch (err) {
         console.error('Failed to load history:', err)

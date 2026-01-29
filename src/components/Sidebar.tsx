@@ -31,13 +31,13 @@ interface NavItem {
   label: string
   icon: typeof Activity
   shortcut: string
-  badgeKey?: 'chat' | 'agents' | 'code'
+  badgeKey?: 'chat' | 'channels' | 'agents' | 'code'
 }
 
 const navItems: NavItem[] = [
   { id: 'dashboard', label: 'Bridge', icon: Activity, shortcut: '⌘1' },
   { id: 'chat', label: 'Chat', icon: MessageCircle, shortcut: '⌘2', badgeKey: 'chat' },
-  { id: 'channels', label: 'Channels', icon: MessageSquare, shortcut: '⌘3', badgeKey: 'channels' as any },
+  { id: 'channels', label: 'Channels', icon: MessageSquare, shortcut: '⌘3', badgeKey: 'channels' },
   { id: 'people', label: 'People', icon: Users, shortcut: '⌘4' },
   { id: 'memory', label: 'Memory', icon: Brain, shortcut: '⌘5' },
   { id: 'rhythms', label: 'Rhythms', icon: Clock, shortcut: '⌘6' },
@@ -45,18 +45,18 @@ const navItems: NavItem[] = [
   { id: 'tasks', label: 'Tasks', icon: CheckSquare, shortcut: '⌘8' },
   { id: 'agents', label: 'Agents', icon: Zap, shortcut: '⌘9', badgeKey: 'agents' },
   { id: 'agent-mail', label: 'Agent Mail', icon: Mail, shortcut: '⌘0' },
-  { id: 'settings', label: 'Settings', icon: Settings, shortcut: '⌘0' },
+  { id: 'settings', label: 'Settings', icon: Settings, shortcut: '' },
 ]
 
 // Mock badge counts — wire to real data later
 function useBadgeCounts() {
-  const [counts, setCounts] = useState({ chat: 0, agents: 0, code: 0 })
+  const [counts, setCounts] = useState({ chat: 0, channels: 0, agents: 0, code: 0 })
   
   useEffect(() => {
     // TODO: Wire to real gateway events for live counts
     // For now, simulate some activity
     const timer = setTimeout(() => {
-      setCounts({ chat: 3, agents: 1, code: 0 })
+      setCounts({ chat: 3, channels: 0, agents: 1, code: 0 })
     }, 2000)
     return () => clearTimeout(timer)
   }, [])
@@ -94,20 +94,14 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
   const badgeCounts = useBadgeCounts()
   const [collapsed, setCollapsed] = useState(false)
 
-  // Keyboard shortcuts: ⌘1-7 to switch views
+  // ⌘[ to toggle sidebar collapse (view shortcuts handled globally by useKeyboardShortcuts)
   const handleKeyboard = useCallback((e: KeyboardEvent) => {
-    if (!e.metaKey && !e.ctrlKey) return
-    const num = parseInt(e.key)
-    if (num >= 1 && num <= navItems.length) {
-      e.preventDefault()
-      setActiveView(navItems[num - 1].id)
-    }
-    // ⌘[ to toggle sidebar
+    if (!(e.metaKey || e.ctrlKey)) return
     if (e.key === '[') {
       e.preventDefault()
       setCollapsed(prev => !prev)
     }
-  }, [setActiveView])
+  }, [])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyboard)

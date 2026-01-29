@@ -2,15 +2,14 @@
 
 import type { IMessageChat, IMessageMessage, WhatsAppChat, UnifiedChat } from '../types/messages'
 import { lookupContact, formatPhone } from './contacts/index'
-
-const GATEWAY_TOKEN = import.meta.env.VITE_GATEWAY_TOKEN || ''
+import { getGatewayUrl, getGatewayToken } from './config'
 
 async function execCommand(command: string): Promise<string> {
-  const response = await fetch('/api/tools/invoke', {
+  const response = await fetch(`${getGatewayUrl()}/tools/invoke`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GATEWAY_TOKEN}`,
+      'Authorization': `Bearer ${getGatewayToken()}`,
     },
     body: JSON.stringify({ tool: 'exec', args: { command } }),
   })

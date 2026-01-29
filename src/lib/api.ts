@@ -180,6 +180,10 @@ export function getThinkingText(message: Message): string | null {
 
 // Format session display name
 export function formatSessionName(session: Session): string {
+  // Prefer label (clean, human-readable) if available
+  if (session.label) {
+    return session.label.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  }
   if (session.displayName) {
     // Clean up display names like "whatsapp:g-agent-main-main"
     const parts = session.displayName.split(':')

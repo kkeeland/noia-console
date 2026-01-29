@@ -1,8 +1,8 @@
 import { useEffect, useCallback } from 'react'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'settings'
+type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
-const viewOrder: View[] = ['dashboard', 'chat', 'channels', 'people', 'memory', 'rhythms', 'code', 'tasks', 'agents', 'settings']
+const viewOrder: View[] = ['dashboard', 'chat', 'channels', 'people', 'memory', 'rhythms', 'code', 'tasks', 'agents', 'agent-mail', 'settings']
 
 interface UseKeyboardShortcutsOptions {
   setActiveView: (view: View) => void
@@ -21,12 +21,18 @@ export function useKeyboardShortcuts({ setActiveView, onEscape }: UseKeyboardSho
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const mod = e.metaKey || e.ctrlKey
 
-    // ⌘1-7: Switch views
+    // ⌘1-9: Switch views, ⌘0: Agent Mail (10th item)
     if (mod) {
       const num = parseInt(e.key)
-      if (num >= 1 && num <= viewOrder.length) {
+      if (num >= 1 && num <= 9 && num <= viewOrder.length) {
         e.preventDefault()
         setActiveView(viewOrder[num - 1])
+        return
+      }
+      // ⌘0 → 10th item (agent-mail)
+      if (num === 0 && viewOrder.length >= 10) {
+        e.preventDefault()
+        setActiveView(viewOrder[9])
         return
       }
     }

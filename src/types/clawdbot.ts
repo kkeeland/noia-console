@@ -5,12 +5,16 @@ export interface Session {
   kind: 'dm' | 'group' | 'other'
   channel: string
   displayName: string
+  label?: string
   updatedAt: number
   sessionId: string
   model?: string
+  contextTokens?: number
   totalTokens?: number
   lastChannel?: string
   transcriptPath?: string
+  abortedLastRun?: boolean
+  systemSent?: boolean
 }
 
 export interface Message {

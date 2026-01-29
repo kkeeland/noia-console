@@ -6,18 +6,17 @@
 
 import type { Contact, ContactsProvider } from './index'
 import { normalizePhone } from './index'
-
-const GATEWAY_TOKEN = import.meta.env.VITE_GATEWAY_TOKEN || ''
+import { getGatewayUrl, getGatewayToken } from '../config'
 
 // Cache to avoid repeated lookups
 const cache = new Map<string, Contact | null>()
 
 async function execCommand(command: string): Promise<string> {
-  const response = await fetch('/api/tools/invoke', {
+  const response = await fetch(`${getGatewayUrl()}/tools/invoke`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${GATEWAY_TOKEN}`,
+      'Authorization': `Bearer ${getGatewayToken()}`,
     },
     body: JSON.stringify({ tool: 'exec', args: { command } }),
   })
