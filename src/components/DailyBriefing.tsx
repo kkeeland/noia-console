@@ -11,7 +11,7 @@ import {
   CheckSquare,
   Brain,
   ChevronDown,
-  ChevronRight,
+  // ChevronRight,
   RefreshCw,
   Clock,
   MapPin,

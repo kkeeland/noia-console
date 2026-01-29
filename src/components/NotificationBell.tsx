@@ -3,7 +3,7 @@
  * Designed for the top bar or sidebar header area
  */
 
-import { useState, useRef, useEffect, useSyncExternalStore, useCallback } from 'react'
+import { useState, useRef, useEffect, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bell,
