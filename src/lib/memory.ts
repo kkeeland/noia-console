@@ -376,6 +376,68 @@ function parseTimelineDays(text: string): TimelineDay[] {
   return days
 }
 
+// --- Daily File Metadata (for heatmap) ---
+
+export interface DailyFileMeta {
+  date: string
+  size: number       // bytes
+  sections: number   // count of ## headings
+}
+
+export async function getDailyFileMetas(): Promise<DailyFileMeta[]> {
+  try {
+    // Get file listing with sizes
+    const result = await invokeTool('exec', {
+      command: `ls -la ~/clawd/memory/daily/*.md 2>/dev/null | awk '{print $5, $NF}'`,
+    })
+    const text = extractText(result)
+    const lines = text.split('\n').filter(l => l.trim())
+    
+    const metas: DailyFileMeta[] = []
+    
+    for (const line of lines) {
+      const match = line.match(/(\d+)\s+.*?(\d{4}-\d{2}-\d{2})\.md/)
+      if (match) {
+        metas.push({
+          date: match[2],
+          size: parseInt(match[1]),
+          sections: 0, // will be enriched below
+        })
+      }
+    }
+    
+    // Get section counts for each file (batch with grep)
+    if (metas.length > 0) {
+      try {
+        const result2 = await invokeTool('exec', {
+          command: `grep -c '^##' ~/clawd/memory/daily/*.md 2>/dev/null || true`,
+        })
+        const text2 = extractText(result2)
+        for (const line of text2.split('\n')) {
+          const m = line.match(/(\d{4}-\d{2}-\d{2})\.md:(\d+)/)
+          if (m) {
+            const meta = metas.find(d => d.date === m[1])
+            if (meta) meta.sections = parseInt(m[2])
+          }
+        }
+      } catch { /* section counts are optional */ }
+    }
+    
+    return metas.sort((a, b) => b.date.localeCompare(a.date))
+  } catch {
+    return []
+  }
+}
+
+// --- Extract headers from daily content ---
+
+export function extractHeaders(content: string): string[] {
+  return content.split('\n')
+    .filter(l => /^#{1,3}\s/.test(l))
+    .map(l => l.replace(/^#{1,3}\s+/, '').trim())
+    .filter(Boolean)
+}
+
 // --- Entities ---
 
 export interface Entity {
@@ -440,9 +502,16 @@ export async function getRelations(name?: string): Promise<Relation[]> {
   const relations: Relation[] = []
   const lines = text.split('\n')
   for (const line of lines) {
-    const match = line.match(/(.+?)\s+→\s+\[(\w+)\]\s+→\s+(.+)/)
+    // Match format: "Kevin [person] --owns--> HelloSpore [project] {"role":"founder"}"
+    const match = line.match(/^\s*(.+?)\s+\[\w+\]\s+--(\w+)-->\s+(.+?)\s+\[\w+\]/)
     if (match) {
       relations.push({ from: match[1].trim(), to: match[3].trim(), type: match[2] })
+      continue
+    }
+    // Fallback: arrow format "Name → [type] → Name"
+    const arrowMatch = line.match(/(.+?)\s+→\s+\[(\w+)\]\s+→\s+(.+)/)
+    if (arrowMatch) {
+      relations.push({ from: arrowMatch[1].trim(), to: arrowMatch[3].trim(), type: arrowMatch[2] })
     }
   }
   return relations
