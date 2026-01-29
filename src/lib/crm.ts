@@ -20,6 +20,7 @@ export interface Contact {
   interactionCount: number
   tags: string[]
   notes: string
+  blocked: boolean
 }
 
 export type HeatLevel = 'hot' | 'warm' | 'cold' | 'frozen'
@@ -57,6 +58,66 @@ export async function saveCrmData(data: Record<string, { tags: string[]; notes: 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data, null, 2),
   })
+}
+
+// ── Blocklist (Do Not Contact) ─────────────────────────
+// Format: array of { id, name, phones[], blockedAt }
+// Stores phone numbers alongside IDs for system-level enforcement
+
+export interface BlocklistEntry {
+  id: string
+  name: string
+  phones: string[]
+  blockedAt: string // ISO timestamp
+  reason?: string   // e.g. "court order", "do not contact"
+}
+
+export async function loadBlocklistEntries(): Promise<BlocklistEntry[]> {
+  try {
+    const res = await fetch('/data/blocklist')
+    if (!res.ok) return []
+    const data = await res.json()
+    // Support both old format (string[]) and new format (BlocklistEntry[])
+    if (Array.isArray(data) && data.length > 0 && typeof data[0] === 'string') {
+      // Legacy: array of IDs — migrate
+      return data.map((id: string) => ({ id, name: id, phones: [], blockedAt: new Date().toISOString() }))
+    }
+    return data as BlocklistEntry[]
+  } catch {
+    return []
+  }
+}
+
+export async function loadBlocklist(): Promise<Set<string>> {
+  const entries = await loadBlocklistEntries()
+  return new Set(entries.map(e => e.id))
+}
+
+export async function saveBlocklistEntries(entries: BlocklistEntry[]): Promise<void> {
+  await fetch('/data/blocklist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entries, null, 2),
+  })
+}
+
+export async function blockContact(contactId: string, contactName: string, phones: string[]): Promise<void> {
+  const entries = await loadBlocklistEntries()
+  if (!entries.some(e => e.id === contactId)) {
+    entries.push({
+      id: contactId,
+      name: contactName,
+      phones,
+      blockedAt: new Date().toISOString(),
+      reason: 'do not contact',
+    })
+    await saveBlocklistEntries(entries)
+  }
+}
+
+export async function unblockContact(contactId: string): Promise<void> {
+  const entries = await loadBlocklistEntries()
+  await saveBlocklistEntries(entries.filter(e => e.id !== contactId))
 }
 
 // ── Build contacts from all sources ────────────────────
@@ -97,10 +158,15 @@ export function getChannelIcon(type: ChannelType): string {
   }
 }
 
-export async function fetchContacts(): Promise<Contact[]> {
-  const [contactsMap, crmData] = await Promise.all([
+export interface FetchContactsOpts {
+  includeBlocked?: boolean  // default: false — blocked contacts hidden
+}
+
+export async function fetchContacts(opts: FetchContactsOpts = {}): Promise<Contact[]> {
+  const [contactsMap, crmData, blocklist] = await Promise.all([
     loadContactsJson(),
     loadCrmData(),
+    loadBlocklist(),
   ])
 
   // Group by name
@@ -124,6 +190,7 @@ export async function fetchContacts(): Promise<Contact[]> {
         interactionCount: 0,
         tags: crm?.tags || [],
         notes: crm?.notes || '',
+        blocked: blocklist.has(id),
       }
       byName.set(name, contact)
     }
@@ -134,7 +201,14 @@ export async function fetchContacts(): Promise<Contact[]> {
     }
   }
 
-  return Array.from(byName.values()).sort((a, b) => a.name.localeCompare(b.name))
+  let result = Array.from(byName.values())
+
+  // Filter out blocked contacts unless explicitly requested
+  if (!opts.includeBlocked) {
+    result = result.filter(c => !c.blocked)
+  }
+
+  return result.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export function formatRelativeTime(timestamp: number): string {

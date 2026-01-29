@@ -57,6 +57,37 @@ function localDataPlugin(): Plugin {
       }
     },
 
+    '/data/blocklist': (req, res) => {
+      const blPath = path.resolve(HOME, 'clawd/.noia/blocklist.json')
+      if (req.method === 'POST') {
+        let body = ''
+        req.on('data', (chunk: Buffer) => (body += chunk))
+        req.on('end', () => {
+          try {
+            const dir = path.dirname(blPath)
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+            fs.writeFileSync(blPath, body)
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ ok: true }))
+          } catch (e: unknown) {
+            res.statusCode = 500
+            res.end(JSON.stringify({ ok: false, error: (e as Error).message }))
+          }
+        })
+      } else {
+        try {
+          const data = fs.existsSync(blPath)
+            ? fs.readFileSync(blPath, 'utf-8')
+            : '[]'
+          res.setHeader('Content-Type', 'application/json')
+          res.end(data)
+        } catch {
+          res.setHeader('Content-Type', 'application/json')
+          res.end('[]')
+        }
+      }
+    },
+
     '/data/crm': (req, res) => {
       const crmPath = path.resolve(HOME, 'clawd/.noia/crm.json')
       if (req.method === 'POST') {

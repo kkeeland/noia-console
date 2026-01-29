@@ -9,9 +9,12 @@ import {
   Plus,
   X,
   User,
+  Ban,
+  ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react'
 import type { Contact } from '../lib/crm'
-import { getHeatLevel, getHeatConfig, getChannelIcon, saveCrmData, loadCrmData } from '../lib/crm'
+import { getHeatLevel, getHeatConfig, getChannelIcon, saveCrmData, loadCrmData, blockContact, unblockContact } from '../lib/crm'
 
 interface ContactDetailProps {
   contact: Contact
@@ -25,6 +28,8 @@ export default function ContactDetail({ contact, onBack, onUpdate }: ContactDeta
   const [newTag, setNewTag] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false)
+  const [blocking, setBlocking] = useState(false)
 
   const heat = getHeatLevel(contact.lastContact)
   const heatConfig = getHeatConfig(heat)
@@ -196,6 +201,92 @@ export default function ContactDetail({ contact, onBack, onUpdate }: ContactDeta
           <Save className="w-4 h-4" />
           {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save Changes'}
         </button>
+
+        {/* Block / Unblock Section */}
+        <div className="mt-8 pt-6 border-t border-[#1e1e2e]">
+          {contact.blocked ? (
+            /* Currently blocked — show unblock */
+            <div className="p-4 rounded-lg bg-red-500/5 border border-red-500/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Ban className="w-4 h-4 text-red-400" />
+                <span className="text-sm font-medium text-red-400">Do Not Contact</span>
+              </div>
+              <p className="text-xs text-[#71717a] mb-3">
+                This contact is blocked. They are hidden from the People list and will never be contacted.
+              </p>
+              <button
+                onClick={async () => {
+                  setBlocking(true)
+                  try {
+                    await unblockContact(contact.id)
+                    onUpdate({ ...contact, blocked: false })
+                    onBack()
+                  } finally {
+                    setBlocking(false)
+                  }
+                }}
+                disabled={blocking}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e1e2e] border border-[#27272a] text-sm text-[#a1a1aa] hover:text-green-400 hover:border-green-500/30 transition-colors disabled:opacity-50"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                {blocking ? 'Unblocking…' : 'Unblock Contact'}
+              </button>
+            </div>
+          ) : (
+            /* Not blocked — show block option */
+            <>
+              {!showBlockConfirm ? (
+                <button
+                  onClick={() => setShowBlockConfirm(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#16161e] border border-[#27272a] text-sm text-[#52525b] hover:text-red-400 hover:border-red-500/30 transition-colors"
+                >
+                  <Ban className="w-4 h-4" />
+                  Block — Do Not Contact
+                </button>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg bg-red-500/10 border border-red-500/30"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    <span className="text-sm font-semibold text-red-400">Block this contact?</span>
+                  </div>
+                  <p className="text-xs text-[#a1a1aa] mb-4">
+                    <strong>{contact.name}</strong> will be hidden from the People list and{' '}
+                    <span className="text-red-400 font-semibold">never contacted</span>. You can unblock them later from the Blocked filter.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={async () => {
+                        setBlocking(true)
+                        try {
+                          await blockContact(contact.id, contact.name, contact.phones)
+                          onUpdate({ ...contact, blocked: true })
+                          onBack()
+                        } finally {
+                          setBlocking(false)
+                        }
+                      }}
+                      disabled={blocking}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-sm font-medium text-red-400 hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                    >
+                      <Ban className="w-4 h-4" />
+                      {blocking ? 'Blocking…' : 'Yes, Block Forever'}
+                    </button>
+                    <button
+                      onClick={() => setShowBlockConfirm(false)}
+                      className="px-4 py-2 rounded-lg text-sm text-[#71717a] hover:text-[#e4e4e7] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </motion.div>
   )

@@ -9,6 +9,7 @@ import Rhythms from './components/Rhythms'
 import Settings from './components/Settings'
 import Code from './components/Code'
 import Agents from './components/Agents'
+import AgentMail from './components/AgentMail'
 import Channels from './components/Channels'
 import Tasks from './components/Tasks'
 import People from './components/People'
@@ -17,7 +18,7 @@ import { isConfigured } from './lib/config'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useMobileDetect } from './hooks/useMobileDetect'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'settings'
+type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 function App() {
   const [activeView, setActiveView] = useState<View>('dashboard')
@@ -67,6 +68,7 @@ function App() {
             {activeView === 'code' && <Code />}
             {activeView === 'tasks' && <Tasks />}
             {activeView === 'agents' && <Agents />}
+            {activeView === 'agent-mail' && <AgentMail />}
             {activeView === 'settings' && <Settings onConfigChange={handleConfigChange} />}
           </motion.div>
         </AnimatePresence>

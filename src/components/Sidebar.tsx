@@ -14,11 +14,12 @@ import {
   PanelLeft,
   CheckSquare,
   Users,
+  Mail,
 } from 'lucide-react'
 import ConnectionStatus from './ConnectionStatus'
 import { useGatewayStatus } from '../hooks/useGateway'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'settings'
+type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 interface SidebarProps {
   activeView: View
@@ -43,6 +44,7 @@ const navItems: NavItem[] = [
   { id: 'code', label: 'Code', icon: GitBranch, shortcut: '⌘7', badgeKey: 'code' },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare, shortcut: '⌘8' },
   { id: 'agents', label: 'Agents', icon: Zap, shortcut: '⌘9', badgeKey: 'agents' },
+  { id: 'agent-mail', label: 'Agent Mail', icon: Mail, shortcut: '⌘0' },
   { id: 'settings', label: 'Settings', icon: Settings, shortcut: '⌘0' },
 ]
 

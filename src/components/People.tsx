@@ -16,7 +16,7 @@ import type { Contact } from '../lib/crm'
 import { fetchContacts, getHeatLevel } from '../lib/crm'
 
 type SortKey = 'name' | 'lastContact'
-type FilterHeat = 'all' | 'hot' | 'warm' | 'cold' | 'frozen'
+type FilterHeat = 'all' | 'hot' | 'warm' | 'cold' | 'frozen' | 'blocked'
 
 export default function People() {
   const [contacts, setContacts] = useState<Contact[]>([])
@@ -31,7 +31,8 @@ export default function People() {
   const loadContacts = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true)
     try {
-      const data = await fetchContacts()
+      // Always fetch all (including blocked) so we can show the blocked count & filter
+      const data = await fetchContacts({ includeBlocked: true })
       setContacts(data)
       setError(null)
     } catch (e) {
@@ -51,9 +52,19 @@ export default function People() {
     setSelectedContact(updated)
   }, [])
 
+  const blockedCount = useMemo(() => contacts.filter(c => c.blocked).length, [contacts])
+
   // Filter and sort
   const filtered = useMemo(() => {
     let result = contacts
+
+    // Blocked filter: show ONLY blocked. Otherwise hide blocked entirely.
+    if (filterHeat === 'blocked') {
+      result = result.filter(c => c.blocked)
+    } else {
+      // Always hide blocked from normal views
+      result = result.filter(c => !c.blocked)
+    }
 
     // Search
     if (searchQuery) {
@@ -66,8 +77,8 @@ export default function People() {
       )
     }
 
-    // Heat filter
-    if (filterHeat !== 'all') {
+    // Heat filter (skip if viewing blocked list)
+    if (filterHeat !== 'all' && filterHeat !== 'blocked') {
       result = result.filter(c => getHeatLevel(c.lastContact) === filterHeat)
     }
 
@@ -111,7 +122,7 @@ export default function People() {
             <h1 className="text-2xl font-bold">People</h1>
             {!loading && (
               <span className="text-xs text-[#52525b] bg-[#1e1e2e] px-2 py-0.5 rounded-full">
-                {contacts.length} contacts
+                {contacts.length - blockedCount} contacts
               </span>
             )}
           </motion.div>
@@ -194,6 +205,27 @@ export default function People() {
               {f === 'all' ? 'All' : f === 'hot' ? '🔥 Hot' : f === 'warm' ? '☀️ Warm' : '❄️ Cold'}
             </button>
           ))}
+
+          {blockedCount > 0 && (
+            <>
+              <div className="w-px h-5 bg-[#1e1e2e] mx-1" />
+              <button
+                onClick={() => setFilterHeat(filterHeat === 'blocked' ? 'all' : 'blocked')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  filterHeat === 'blocked'
+                    ? 'bg-red-500/20 border border-red-500/40 text-red-400'
+                    : 'bg-[#16161e] border border-[#27272a] text-[#52525b] hover:text-red-400'
+                }`}
+              >
+                🚫 Blocked
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  filterHeat === 'blocked' ? 'bg-red-500/30' : 'bg-[#27272a]'
+                }`}>
+                  {blockedCount}
+                </span>
+              </button>
+            </>
+          )}
 
           {hasFilters && (
             <button

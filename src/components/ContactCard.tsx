@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Phone, Mail, ChevronRight } from 'lucide-react'
+import { Phone, Mail, ChevronRight, Ban } from 'lucide-react'
 import type { Contact } from '../lib/crm'
 import { getHeatLevel, getHeatConfig, getChannelIcon } from '../lib/crm'
 
@@ -27,11 +27,22 @@ export default function ContactCard({ contact, index, onClick }: ContactCardProp
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.02 }}
       onClick={() => onClick(contact)}
-      className="w-full flex items-center gap-3 p-3 rounded-xl bg-[#12121a] border border-[#1e1e2e] hover:border-[#8b5cf6]/30 transition-all text-left group"
+      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left group ${
+        contact.blocked
+          ? 'bg-red-950/20 border-red-500/20 hover:border-red-500/40 opacity-75'
+          : 'bg-[#12121a] border-[#1e1e2e] hover:border-[#8b5cf6]/30'
+      }`}
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8b5cf6]/30 to-[#6d28d9]/20 border border-[#27272a] flex items-center justify-center flex-shrink-0">
-        <span className="text-xs font-bold text-[#a78bfa]">{initials}</span>
+      <div className={`w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0 ${
+        contact.blocked
+          ? 'bg-gradient-to-br from-red-500/20 to-red-900/20 border-red-500/30'
+          : 'bg-gradient-to-br from-[#8b5cf6]/30 to-[#6d28d9]/20 border-[#27272a]'
+      }`}>
+        {contact.blocked
+          ? <Ban className="w-4 h-4 text-red-400" />
+          : <span className="text-xs font-bold text-[#a78bfa]">{initials}</span>
+        }
       </div>
 
       {/* Info */}
