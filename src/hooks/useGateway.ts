@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getGateway, type ConnectionState } from '../lib/gateway-ws'
+import { getGatewayUrl, getGatewayToken } from '../lib/config'
 import type { Message } from '../types/clawdbot'
 
 /**
@@ -52,7 +53,10 @@ export function useGatewayStatusDetail() {
       if (gw.isConnected()) {
         const start = performance.now()
         // Use a lightweight request to measure latency
-        fetch(`${gw['url']?.replace(/^ws/, 'http') || 'http://localhost:18789'}/health`, {
+        fetch(`${getGatewayUrl()}/tools/invoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getGatewayToken()}` },
+          body: JSON.stringify({ tool: 'session_status', args: {} }),
           signal: AbortSignal.timeout(5000),
         })
           .then(() => setLatencyMs(Math.round(performance.now() - start)))
