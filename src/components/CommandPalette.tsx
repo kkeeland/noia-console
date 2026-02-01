@@ -31,7 +31,7 @@ import { toast } from '../lib/notifications'
 
 // ─── Types ───────────────────────────────────────────────
 
-type View = 'dashboard' | 'chat' | 'memory' | 'rhythms' | 'code' | 'agents' | 'settings'
+type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'briefing' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 interface PaletteCommand {
   id: string

@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
+type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'briefing' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 const viewOrder: View[] = ['dashboard', 'chat', 'channels', 'people', 'memory', 'rhythms', 'code', 'tasks', 'agents', 'agent-mail', 'settings']
 

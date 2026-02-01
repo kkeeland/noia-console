@@ -7,7 +7,7 @@ import {
   Settings,
 } from 'lucide-react'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
+type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'briefing' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 interface MobileNavProps {
   activeView: View
