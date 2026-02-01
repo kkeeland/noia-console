@@ -10,8 +10,10 @@ import Settings from './components/Settings'
 import Code from './components/Code'
 import Agents from './components/Agents'
 import AgentMail from './components/AgentMail'
+import Floor from './components/Floor'
 import Channels from './components/Channels'
 import Tasks from './components/Tasks'
+import Briefing from './components/Briefing'
 import People from './components/People'
 import SetupScreen from './components/SetupScreen'
 import NotificationBell from './components/NotificationBell'
@@ -21,10 +23,10 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useMobileDetect } from './hooks/useMobileDetect'
 import { useGatewayConnect } from './hooks/useGateway'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
+type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'briefing' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 function App() {
-  const [activeView, setActiveView] = useState<View>('dashboard')
+  const [activeView, setActiveView] = useState<View>('floor')
   const [configured, setConfigured] = useState(isConfigured())
   const { isMobile } = useMobileDetect()
 
@@ -70,6 +72,7 @@ function App() {
             transition={{ duration: 0.2 }}
             className="h-full"
           >
+            {activeView === 'floor' && <Floor />}
             {activeView === 'dashboard' && <Dashboard onNavigate={(v) => setActiveView(v as View)} />}
             {activeView === 'chat' && <Chat />}
             {activeView === 'channels' && <Channels />}
@@ -77,6 +80,7 @@ function App() {
             {activeView === 'memory' && <Memory />}
             {activeView === 'rhythms' && <Rhythms />}
             {activeView === 'code' && <Code />}
+            {activeView === 'briefing' && <Briefing />}
             {activeView === 'tasks' && <Tasks />}
             {activeView === 'agents' && <Agents />}
             {activeView === 'agent-mail' && <AgentMail />}

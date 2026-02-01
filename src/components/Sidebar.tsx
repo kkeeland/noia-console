@@ -15,11 +15,13 @@ import {
   CheckSquare,
   Users,
   Mail,
+  LayoutDashboard,
+  BarChart3,
 } from 'lucide-react'
 import ConnectionStatus from './ConnectionStatus'
 import { useGatewayStatus } from '../hooks/useGateway'
 
-type View = 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
+type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 'rhythms' | 'code' | 'briefing' | 'tasks' | 'agents' | 'agent-mail' | 'settings'
 
 interface SidebarProps {
   activeView: View
@@ -35,6 +37,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  { id: 'floor', label: 'The Floor', icon: LayoutDashboard, shortcut: '⌘0' },
   { id: 'dashboard', label: 'Bridge', icon: Activity, shortcut: '⌘1' },
   { id: 'chat', label: 'Chat', icon: MessageCircle, shortcut: '⌘2', badgeKey: 'chat' },
   { id: 'channels', label: 'Channels', icon: MessageSquare, shortcut: '⌘3', badgeKey: 'channels' },
@@ -42,6 +45,7 @@ const navItems: NavItem[] = [
   { id: 'memory', label: 'Memory', icon: Brain, shortcut: '⌘5' },
   { id: 'rhythms', label: 'Rhythms', icon: Clock, shortcut: '⌘6' },
   { id: 'code', label: 'Code', icon: GitBranch, shortcut: '⌘7', badgeKey: 'code' },
+  { id: 'briefing', label: 'Briefing', icon: BarChart3, shortcut: '' },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare, shortcut: '⌘8' },
   { id: 'agents', label: 'Agents', icon: Zap, shortcut: '⌘9', badgeKey: 'agents' },
   { id: 'agent-mail', label: 'Agent Mail', icon: Mail, shortcut: '⌘0' },

@@ -136,6 +136,18 @@ button, a, input, textarea, select {
   background-clip: text;
 }
 
+/* Needs You column pulse */
+@keyframes needsYouPulse {
+  0%, 100% {
+    border-color: rgba(239, 68, 68, 0.2);
+    box-shadow: inset 0 0 20px rgba(239, 68, 68, 0.03);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.06);
+  }
+}
+
 /* Pulse ring animation for status indicators */
 @keyframes pulse-ring {
   0% {
