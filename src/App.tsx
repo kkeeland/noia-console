@@ -27,7 +27,7 @@ type View = 'floor' | 'dashboard' | 'chat' | 'channels' | 'people' | 'memory' | 
 
 function App() {
   const [activeView, setActiveView] = useState<View>('floor')
-  const [configured, setConfigured] = useState(isConfigured())
+  const [configured, setConfigured] = useState(true)
   const { isMobile } = useMobileDetect()
 
   // Global keyboard shortcuts (⌘1-7, ⌘K, ⌘/, Escape)
